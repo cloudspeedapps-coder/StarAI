@@ -1,0 +1,133 @@
+# STARAI — Bug Reproduce
+
+Product requirements document
+
+Version: 0.1 | Date: October 28, 2026 | Status: proposed MVP
+
+This document defines STARAI’s reported-bug reproduction capability and records the local VS Code validation that informed it. Requirements below describe a product to build. The completed desktop tests are evidence of the workflow, not evidence that a standalone STARAI product already implements it.
+
+## 1. Problem and product promise
+
+Developers and support engineers spend time converting incomplete bug reports into executable steps, matching environments, resetting test data, and collecting proof. A report can appear plausible while failing to reproduce, and successful UI actions alone do not prove that the expected state changed.
+
+STARAI should turn a reported issue into an evidence-backed reproduction package: exact inputs, environment, actions, expected versus actual behavior, repeat results, and a concise developer-ready report. The user should be able to ask, “Try the next three reported bugs on my installed VS Code,” and receive a transparent result for each.
+
+The proposed product edge is the complete report-to-reproduction-to-regression workflow on a real application. Its value depends on faithful environment matching, reliable behavioral checks, and useful evidence. This is a product hypothesis; these tests do not establish competitive exclusivity or superiority over Momentic or another vendor.
+
+## 2. Users and jobs
+
+| User | Job | Successful outcome |
+|---|---|---|
+| Support engineer | Verify whether a customer’s symptom occurs on an available installation | Evidence to advance triage or a precise request for missing context |
+| QA engineer | Convert a report into repeatable steps | Reusable fixture, reset procedure, observable assertions, and run history |
+| Developer | Understand and fix a confirmed failure | Minimal reproduction with clear failure boundaries and control comparisons |
+| Engineering lead | Review unresolved reports | Results grouped by confidence, impact, environment, and blockers |
+
+## 3. MVP scope
+
+Start with public GitHub issues and user-provided descriptions, one local Windows application at a time, and batches of up to three issues. VS Code text editing is the initial validation surface. Read installed version and current application state, use small isolated test files, execute through the visible application, and produce local reports and evidence.
+
+Include read-only issue retrieval, compatibility assessment, step extraction, fixture creation, UI execution, observations, bounded retries, reset, and export. Support continuing a paused run after a user handles a required prompt.
+
+Out of scope for the first release: automatic product upgrades or extension installation, crash/load testing on the user’s active workspace, unattended credential entry, automatic external issue posting, root-cause guarantees, automatic code fixes, and cross-platform certification. A later milestone may turn a validated reproduction into a runnable regression test.
+
+## 4. End-to-end experience
+
+1. Accept issue links or discover the next untested issues for the selected application.
+2. Record installed version, platform, editor/profile mode, relevant settings, and uncertainty. Distinguish the reported environment from the tested environment.
+3. Show the selected issue IDs and short symptom descriptions before execution. Exclude previously tested issues when the user requests the next batch.
+4. Convert each report into preconditions, fixture, actions, observable expectation, comparison/control, repeat procedure, and cleanup plan.
+5. Create isolated fixtures. Snapshot the initial application state and verify focus before input.
+6. Execute one action at a time, observe state, and record deviations. Reobserve after window movement, unexpected focus changes, or UI timing ambiguity.
+7. Verify the failure through concrete state: text, counts, cursor positions, saved content, or visual evidence. Repeat after reset when feasible.
+8. Produce an explicit outcome for every selected issue, with evidence and limitations. Restore fixtures and close test tabs.
+9. Export a report, structured observations, source snapshot, fixtures, and evidence manifest into the selected project folder.
+
+## 5. Functional requirements
+
+| ID | Priority | Requirement | Acceptance check |
+|---|---|---|---|
+| BR-01 | P0 | Ingest issue URL, title, body, state, retrieval time, and reported environment | Every result links to its source and distinguishes public reports from private customer reports |
+| BR-02 | P0 | Track prior selections and choose compatible, feasible issues | A “next three” run contains three distinct, previously untested issue IDs, or explains any shortfall |
+| BR-03 | P0 | Capture actual environment and unknowns | Each run records product/version, OS, profile/isolation status, relevant modes, and unresolved configuration differences |
+| BR-04 | P0 | Preserve exact fixture inputs and explicit expectations | Each case has inspectable input files and an assertion that can fail independently of the UI action succeeding |
+| BR-05 | P0 | Observe before and after each meaningful UI action | Evidence identifies the target app and tested state; stale selectors or coordinates trigger reobservation |
+| BR-06 | P0 | Validate outcomes using behavioral evidence | A clicked Replace button is insufficient; changed text or unchanged text plus selection movement must be observed |
+| BR-07 | P0 | Repeat or document why repetition was not completed | Results state exact attempt counts and whether trials used reset, different matches, or app restart |
+| BR-08 | P0 | Label setup adaptations | Keyboard-created carets versus Alt+Click, local versus remote files, and version differences appear in the report |
+| BR-09 | P0 | Preserve user work and bound side effects | Fixture operations stay in the test directory; existing user documents remain untouched; cleanup is verified |
+| BR-10 | P0 | Pause at prohibited or user-controlled prompts | Run stores its checkpoint and resumes only after the required user action; no automated trust or authentication bypass |
+| BR-11 | P0 | Export a complete local reproduction package | All evidence links resolve; report includes expected/actual, environment, source, attempts, limitations, and cleanup |
+| BR-12 | P1 | Compare controls and offer scoped workarounds | Control outcomes are observed, and suggested but untested workarounds are labeled as such |
+| BR-13 | P1 | Generate a regression-test specification | A confirmed case exports setup, assertion, reset, and evidence requirements without claiming automation exists |
+| BR-14 | P1 | Support draft issue updates for review | External posting requires explicit authorization; generating a local draft does not post it |
+
+P0 is required for MVP release; P1 follows after the core evidence workflow is reliable.
+
+## 6. Outcome and confidence model
+
+| Outcome | Definition |
+|---|---|
+| Reproduced | Observed behavior matches the reported failure under stated conditions; any setup adaptation is disclosed |
+| Partially reproduced | A related failure appears, but an essential symptom or condition remains unconfirmed |
+| Not reproduced | Planned steps completed successfully without the reported failure in the tested configuration; this does not mean the issue is fixed everywhere |
+| Blocked | A missing dependency, unsupported interaction, or required user action prevented a valid attempt |
+| Inconclusive | An attempt ran, but evidence or assertion ambiguity prevents a defensible conclusion |
+
+Keep confidence separate from status. Record the reason, attempt count, reset method, control result, and missing evidence. Do not assign a numerical probability without a calibrated evaluation method. Do not turn an automation failure into a product defect.
+
+## 7. Data and artifacts
+
+Each run should have `run_id`, timestamps, application and OS metadata, execution mode, source references, selected cases, and cleanup status. Each case should include `issue_id`, `reported_environment`, `tested_environment`, `fixture_paths`, `preconditions`, `steps`, `expected`, `actual`, `outcome`, `attempts`, `adaptations`, `evidence_paths`, `limitations`, and `suggested_priority`.
+
+Store immutable source snapshots and per-attempt evidence. Hash fixtures and evidence so a reviewer can verify which files belong to a run. A report must distinguish captured artifacts from synthesized explanations. Screenshots may contain local paths or unrelated tabs; keep them local by default and require review before external sharing.
+
+Export conventions:
+
+- `documents/BugReproduce.prd`: product requirements and validation summary.
+- `qa/<run-id>/...Report.md`: human-readable reproduction report.
+- `qa/<run-id>/observations.json`: machine-readable conclusions.
+- `qa/<run-id>/public-issues.json`: source snapshots for public issues.
+- `qa/<run-id>/evidence/`: original screenshots or other recorded proof.
+- `qa/<run-id>/manifest.json`: artifact sizes and hashes.
+
+## 8. Success metrics and release gates
+
+The following are proposed gates, not measured product results:
+
+- 100% of case reports include source, tested version, fixture, expected/actual, outcome, and limitations.
+- Zero unsupported “reproduced” labels in a reviewed initial evaluation set; reviewers must be able to connect each claim to evidence.
+- At least 90% agreement with human adjudication on a curated 20-case set spanning reproduced, non-reproduced, partial, blocked, and inconclusive cases.
+- 100% of cleanly completed runs restore their declared fixture state or explicitly identify retained artifacts.
+- Zero unapproved external posts or changes to unrelated user files in the evaluation set.
+- Measure elapsed time, active execution time, tool calls, and user handoffs before setting speed/cost targets. This desktop experiment did not instrument those metrics.
+
+Use predeclared cases and expected classifications. Do not judge success by maximizing the number of bugs reported as reproduced.
+
+## 9. Completed validation: VS Code batch 2
+
+Executed October 28, 2026 on installed VS Code 1.144.0 stable in Windows Restricted Mode, using local UTF-8/LF Plain Text fixtures and the existing profile.
+
+| Issue | Expected | Observed | Result |
+|---|---|---|---|
+| [#196884](https://github.com/microsoft/vscode/issues/196884) | Single Replace changes a matching `b` to `BBB` | Two successive single replacements skipped the text; Replace All changed all three | Reproduced |
+| [#291591](https://github.com/microsoft/vscode/issues/291591) | Whole-word `aa-aa` finds a valid match on each of three lines | Two matches with whole-word on, three with it off; repeated toggle confirmed | Reproduced |
+| [#309282](https://github.com/microsoft/vscode/issues/309282) | Copy Line Down preserves all three cursors | Three became two, twice; marker produced `foox barx baz` | Reproduced with adapted cursor setup |
+
+For #309282, regex selection plus Right created the visible `foo| bar| baz|` state instead of the report’s Alt+Click setup. For #291591, the original remote SSH environment was not recreated. No clean-profile, extension-bisect, app-restart, or cross-platform comparison was performed. These are local symptom confirmations, not root-cause findings or a product-wide reliability measurement.
+
+Full steps, screenshots, controls, and repeat counts: [batch 2 report](../qa/vscode-2026-10-28-batch2/VSCode-Bug-Reproduction-Report.md).
+
+The preceding [Markdown batch](../qa/vscode-2026-10-28/VSCode-Bug-Reproduction-Report.md) produced two “not reproduced” results and one partial reproduction. Together, the batches show why STARAI needs multiple outcome categories and explicit evidence standards.
+
+## 10. Implementation milestones and risks
+
+**Milestone 1 — evidence workflow:** build issue intake, environment capture, fixture management, UI execution checkpoints, status classification, and report export. Exit when all P0 requirements pass reviewed test cases.
+
+**Milestone 2 — repeatability:** add deterministic resets, controls, per-attempt comparisons, and clean-profile testing where authorized. Exit when a second tester can repeat confirmed cases from the exported package.
+
+**Milestone 3 — regression handoff:** generate executable tests for supported surfaces and attach verified artifacts to a reviewable draft. Exit when a known failing build fails the generated assertion and a verified fixed build passes it.
+
+Primary risks are timing-sensitive UI state, focus changes, incomplete original reports, profile differences, unsupported gestures, and overconfident visual interpretation. Mitigations are fresh observations, small fixtures, explicit assertions, control runs, setup-adaptation disclosure, and a supported “inconclusive” outcome. Security prompts may require a human checkpoint; the system should preserve progress and explain the exact required action.
+
+Open product decisions: supported application matrix beyond VS Code, evaluation-case ownership, evidence retention policy, deployment model, and pricing. Resolve these after measuring developer usefulness and repeatability in the initial evaluation set.

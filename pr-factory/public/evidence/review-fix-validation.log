@@ -1,0 +1,29 @@
+Copilot review corrections
+
+Before correction: both bounded regression tests failed. The rejected non-global empty match exceeded two executions; a.*b over 8000 words made 8001 executions.
+
+After correction:
+Failed to load resource: the server responded with a status of 404 (Not Found) []
+
+
+  ........................................................
+  ........................................................
+  ........................................................
+  ..................
+
+  186 passing (730ms)
+
+
+ESLint:
+npm warn Unknown project config "disturl". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "target". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "ms_build_id". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "runtime". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "build_from_source". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+npm warn Unknown project config "timeout". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+
+> code-oss-dev@1.145.0 eslint
+> node --max-old-space-size=8192 build/eslint.ts src/vs/editor/common/model.ts src/vs/editor/common/model/textModelSearch.ts src/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeBase.ts src/vs/editor/test/common/model/textModelSearch.test.ts
+
+ESLint: checking 4 requested targets.
+ESLint: checked 4 files in 2789ms.

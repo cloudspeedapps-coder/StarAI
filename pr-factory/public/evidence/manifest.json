@@ -1,0 +1,198 @@
+{
+  "capturedAt": "2026-10-28",
+  "visibility": "local-only",
+  "files": [
+    {
+      "name": "196884-before.png",
+      "url": "/evidence/196884-before.png",
+      "bytes": 96115,
+      "sha256": "4676dd254600893f1be0bb408ed134de3a09af4d9c9d75edb91fbec24d675098",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "196884-replace-all-control.png",
+      "url": "/evidence/196884-replace-all-control.png",
+      "bytes": 94081,
+      "sha256": "27912700266a4da5ef6f93f1a04419453ab289fd9b918b53f6b83f74bb21bd39",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "196884-single-replace-repeat.png",
+      "url": "/evidence/196884-single-replace-repeat.png",
+      "bytes": 95434,
+      "sha256": "0689369d96e98e9dd29e278f3d001068bce30f63d8dd010d7aa7c64cb9f8c443",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "196884-single-replace.png",
+      "url": "/evidence/196884-single-replace.png",
+      "bytes": 95450,
+      "sha256": "1f676b9d0e433c93f17a14045197ace01e7f560d4c7c5984b88751dc77f3e9b1",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "291591-whole-word-off.png",
+      "url": "/evidence/291591-whole-word-off.png",
+      "bytes": 91884,
+      "sha256": "fd08bd3f267156a2bbf9d93d1a9590ddc1976de374e47b890c15917db1c54e73",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "291591-whole-word-on.png",
+      "url": "/evidence/291591-whole-word-on.png",
+      "bytes": 91688,
+      "sha256": "13601cfc47da23290ee790d1cef3ded3932ff5fa02665dac2734ee8ac6292814",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "291591-whole-word-repeat.png",
+      "url": "/evidence/291591-whole-word-repeat.png",
+      "bytes": 91668,
+      "sha256": "27048f9a3804d06a2ca0f7f1fd55d1c2ddc55a75088956350b4958eedb549640",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "309282-copy-down-repeat.png",
+      "url": "/evidence/309282-copy-down-repeat.png",
+      "bytes": 85579,
+      "sha256": "526abb4892b80578459e590b5ec6337e7c4b7a6ff0d8a1df4cc6ec358bef4534",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "309282-copy-down-two-cursors.png",
+      "url": "/evidence/309282-copy-down-two-cursors.png",
+      "bytes": 85579,
+      "sha256": "526abb4892b80578459e590b5ec6337e7c4b7a6ff0d8a1df4cc6ec358bef4534",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "309282-cursor-probe.png",
+      "url": "/evidence/309282-cursor-probe.png",
+      "bytes": 85969,
+      "sha256": "5a52b877a7059696bcb4b2f6a070e786db02b2920807447cef92de32492866bc",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "309282-three-cursors-before.png",
+      "url": "/evidence/309282-three-cursors-before.png",
+      "bytes": 84276,
+      "sha256": "16e57aa1c99e96be92270baa4045d95ea66e1d080570200d91a83d247f891056",
+      "kind": "image",
+      "provenance": "Original desktop capture · local-only · contains workstation paths"
+    },
+    {
+      "name": "whole-word.txt",
+      "url": "/evidence/whole-word.txt",
+      "bytes": 38,
+      "sha256": "47bc8a3c7036aef151669b6f4787c2c6fe6ae723e5b1d4270e93db676303c4c3",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "lookbehind.txt",
+      "url": "/evidence/lookbehind.txt",
+      "bytes": 60,
+      "sha256": "b981b043aa5796c7e5a9e265dcb229b2aa76654949a7dfff43e2677e71e595d1",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "multicursor.txt",
+      "url": "/evidence/multicursor.txt",
+      "bytes": 12,
+      "sha256": "f6f24a11d7cbbbc6d9440aca2eba0f6498755ca90adea14c5e233bf4c04bd928",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "lookbehind-after-replace-all.txt",
+      "url": "/evidence/lookbehind-after-replace-all.txt",
+      "bytes": 66,
+      "sha256": "0e09a7996fdde10d85a84f201d07f5b7decbf82c1b8b79b625d55fbee47fda1e",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "fix-baseline-tests.log",
+      "url": "/evidence/fix-baseline-tests.log",
+      "bytes": 16195,
+      "sha256": "40d9f17b366fb11228a9ccc5550b35f4fb022f163adc73ce42369083f5797b5d",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "fix-validation.log",
+      "url": "/evidence/fix-validation.log",
+      "bytes": 1694,
+      "sha256": "c0a400999b023f41871a89de85dd36c0d7e31878f402102760e8b0a1a57832b3",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "review-fix-validation.log",
+      "url": "/evidence/review-fix-validation.log",
+      "bytes": 1792,
+      "sha256": "39a4d81ce96768c4c61a1df948ffe8c1e7ed60b8bbb45af42982e4c3b8b0a206",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "VSCode-Bug-Reproduction-Report.md",
+      "url": "/evidence/VSCode-Bug-Reproduction-Report.md",
+      "bytes": 8074,
+      "sha256": "9b853205d76b8339b2a219b73b655fc1d76d0b9c923256989ec81e52e67228f2",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "observations.json",
+      "url": "/evidence/observations.json",
+      "bytes": 2381,
+      "sha256": "a1fed51087aa4a7482db6e595944cd7464ec9c9d15ae02eea5e73c05d631c074",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "public-issues.json",
+      "url": "/evidence/public-issues.json",
+      "bytes": 22215,
+      "sha256": "161af2cb57f6ae6e775d65ffed4cceb1399531d8fbd7fb4b5e0a48a98659b060",
+      "kind": "text",
+      "provenance": "Historical local record · 2026-10-28"
+    },
+    {
+      "name": "final.patch",
+      "url": "/evidence/final.patch",
+      "bytes": 14890,
+      "sha256": "53b0d54ac7dc8100bcc8b6be5367fcc355d12dbd4c2dbb72826f8e92483a407c",
+      "kind": "text",
+      "provenance": "Generated from pinned local Git revisions · not the remote PR diff"
+    },
+    {
+      "name": "review-correction.patch",
+      "url": "/evidence/review-correction.patch",
+      "bytes": 10518,
+      "sha256": "7bc1a88bbf8615d9694ada4fc6de577dd1cd9d7169bb8c7e6de1606711f9b85f",
+      "kind": "text",
+      "provenance": "Generated from pinned local Git revisions · not the remote PR diff"
+    },
+    {
+      "name": "LICENSE-vscode.txt",
+      "url": "/evidence/LICENSE-vscode.txt",
+      "bytes": 1109,
+      "sha256": "cce33203a80863c22499035b1cfb6aba5df5f02e4ea2669cf5bc5730c1864236",
+      "kind": "text",
+      "provenance": "Microsoft VS Code source license"
+    }
+  ]
+}

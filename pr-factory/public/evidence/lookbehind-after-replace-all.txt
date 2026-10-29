@@ -1,0 +1,10 @@
+a-b-c
+a-b-d
+a-b-e
+a-c-d
+a-c-e
+a-d-e
+BBB-c-d
+BBB-c-e
+BBB-d-e
+c-d-e

@@ -1,0 +1,329 @@
+diff --git a/src/vs/editor/common/model.ts b/src/vs/editor/common/model.ts
+index 34c57f25..d64f0f47 100644
+--- a/src/vs/editor/common/model.ts
++++ b/src/vs/editor/common/model.ts
+@@ -1581,11 +1581,16 @@ export class SearchData {
+ 	 * The simple string to search for (if possible).
+ 	 */
+ 	public readonly simpleSearch: string | null;
++	/**
++	 * Whether the regex was generated from literal search text, including case-insensitive searches.
++	 */
++	public readonly isLiteralSearch: boolean;
+ 
+-	constructor(regex: RegExp, wordSeparators: WordCharacterClassifier | null, simpleSearch: string | null) {
++	constructor(regex: RegExp, wordSeparators: WordCharacterClassifier | null, simpleSearch: string | null, isLiteralSearch: boolean = false) {
+ 		this.regex = regex;
+ 		this.wordSeparators = wordSeparators;
+ 		this.simpleSearch = simpleSearch;
++		this.isLiteralSearch = isLiteralSearch;
+ 	}
+ }
+ 
+diff --git a/src/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeBase.ts b/src/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeBase.ts
+index bf2f4a91..cf5473eb 100644
+--- a/src/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeBase.ts
++++ b/src/vs/editor/common/model/pieceTreeTextBuffer/pieceTreeBase.ts
+@@ -8,7 +8,7 @@ import { Position } from '../../core/position.js';
+ import { Range } from '../../core/range.js';
+ import { FindMatch, ITextSnapshot, SearchData } from '../../model.js';
+ import { NodeColor, SENTINEL, TreeNode, fixInsert, leftest, rbDelete, righttest, updateTreeMetadata } from './rbTreeBase.js';
+-import { Searcher, createFindMatch, isValidMatch } from '../textModelSearch.js';
++import { Searcher, createFindMatch, findNextWordStart, isValidMatch } from '../textModelSearch.js';
+ 
+ // const lfRegex = new RegExp(/\r\n|\r|\n/g);
+ const AverageBufferSize = 65535;
+@@ -738,7 +738,7 @@ export class PieceTreeBase {
+ 	public findMatchesLineByLine(searchRange: Range, searchData: SearchData, captureMatches: boolean, limitResultCount: number): FindMatch[] {
+ 		const result: FindMatch[] = [];
+ 		let resultLen = 0;
+-		const searcher = new Searcher(searchData.wordSeparators, searchData.regex);
++		const searcher = new Searcher(searchData.wordSeparators, searchData.regex, searchData.isLiteralSearch);
+ 
+ 		let startPosition = this.nodeAt2(searchRange.startLineNumber, searchRange.startColumn);
+ 		if (startPosition === null) {
+@@ -816,13 +816,18 @@ export class PieceTreeBase {
+ 			const searchStringLen = searchString.length;
+ 			const textLength = text.length;
+ 
+-			let lastMatchIndex = -searchStringLen;
+-			while ((lastMatchIndex = text.indexOf(searchString, lastMatchIndex + searchStringLen)) !== -1) {
++			let searchStartIndex = 0;
++			let lastMatchIndex: number;
++			while ((lastMatchIndex = text.indexOf(searchString, searchStartIndex)) !== -1) {
+ 				if (!wordSeparators || isValidMatch(wordSeparators, text, textLength, lastMatchIndex, searchStringLen)) {
+ 					result[resultLen++] = new FindMatch(new Range(lineNumber, lastMatchIndex + 1 + deltaOffset, lineNumber, lastMatchIndex + 1 + searchStringLen + deltaOffset), null);
+ 					if (resultLen >= limitResultCount) {
+ 						return resultLen;
+ 					}
++					searchStartIndex = lastMatchIndex + searchStringLen;
++				} else {
++					// A rejected candidate can overlap a valid whole-word match.
++					searchStartIndex = findNextWordStart(wordSeparators, text, textLength, lastMatchIndex);
+ 				}
+ 			}
+ 			return resultLen;
+diff --git a/src/vs/editor/common/model/textModelSearch.ts b/src/vs/editor/common/model/textModelSearch.ts
+index ae259f03..c1fc06f8 100644
+--- a/src/vs/editor/common/model/textModelSearch.ts
++++ b/src/vs/editor/common/model/textModelSearch.ts
+@@ -62,7 +62,7 @@ export class SearchParams {
+ 			canUseSimpleSearch = this.matchCase;
+ 		}
+ 
+-		return new SearchData(regex, this.wordSeparators ? getMapForWordSeparators(this.wordSeparators, []) : null, canUseSimpleSearch ? this.searchString : null);
++		return new SearchData(regex, this.wordSeparators ? getMapForWordSeparators(this.wordSeparators, []) : null, canUseSimpleSearch ? this.searchString : null, !this.isRegex);
+ 	}
+ }
+ 
+@@ -167,7 +167,7 @@ export class TextModelSearch {
+ 		}
+ 
+ 		if (searchData.regex.multiline) {
+-			return this._doFindMatchesMultiline(model, searchRange, new Searcher(searchData.wordSeparators, searchData.regex), captureMatches, limitResultCount);
++			return this._doFindMatchesMultiline(model, searchRange, new Searcher(searchData.wordSeparators, searchData.regex, searchData.isLiteralSearch), captureMatches, limitResultCount);
+ 		}
+ 		return this._doFindMatchesLineByLine(model, searchRange, searchData, captureMatches, limitResultCount);
+ 	}
+@@ -259,19 +259,24 @@ export class TextModelSearch {
+ 			const searchStringLen = searchString.length;
+ 			const textLength = text.length;
+ 
+-			let lastMatchIndex = -searchStringLen;
+-			while ((lastMatchIndex = text.indexOf(searchString, lastMatchIndex + searchStringLen)) !== -1) {
++			let searchStartIndex = 0;
++			let lastMatchIndex: number;
++			while ((lastMatchIndex = text.indexOf(searchString, searchStartIndex)) !== -1) {
+ 				if (!wordSeparators || isValidMatch(wordSeparators, text, textLength, lastMatchIndex, searchStringLen)) {
+ 					result[resultLen++] = new FindMatch(new Range(lineNumber, lastMatchIndex + 1 + deltaOffset, lineNumber, lastMatchIndex + 1 + searchStringLen + deltaOffset), null);
+ 					if (resultLen >= limitResultCount) {
+ 						return resultLen;
+ 					}
++					searchStartIndex = lastMatchIndex + searchStringLen;
++				} else {
++					// A rejected candidate can overlap a valid whole-word match.
++					searchStartIndex = findNextWordStart(wordSeparators, text, textLength, lastMatchIndex);
+ 				}
+ 			}
+ 			return resultLen;
+ 		}
+ 
+-		const searcher = new Searcher(searchData.wordSeparators, searchData.regex);
++		const searcher = new Searcher(searchData.wordSeparators, searchData.regex, searchData.isLiteralSearch);
+ 		let m: RegExpExecArray | null;
+ 		// Reset regex to search from the beginning
+ 		searcher.reset(0);
+@@ -293,7 +298,7 @@ export class TextModelSearch {
+ 			return null;
+ 		}
+ 
+-		const searcher = new Searcher(searchData.wordSeparators, searchData.regex);
++		const searcher = new Searcher(searchData.wordSeparators, searchData.regex, searchData.isLiteralSearch);
+ 
+ 		if (searchData.regex.multiline) {
+ 			return this._doFindNextMatchMultiline(model, searchStart, searcher, captureMatches);
+@@ -371,7 +376,7 @@ export class TextModelSearch {
+ 			return null;
+ 		}
+ 
+-		const searcher = new Searcher(searchData.wordSeparators, searchData.regex);
++		const searcher = new Searcher(searchData.wordSeparators, searchData.regex, searchData.isLiteralSearch);
+ 
+ 		if (searchData.regex.multiline) {
+ 			return this._doFindPreviousMatchMultiline(model, searchStart, searcher, captureMatches);
+@@ -491,15 +496,28 @@ export function isValidMatch(wordSeparators: WordCharacterClassifier, text: stri
+ 	);
+ }
+ 
++/**
++ * Returns the next possible whole-word match start after a rejected candidate.
++ */
++export function findNextWordStart(wordSeparators: WordCharacterClassifier, text: string, textLength: number, matchStartIndex: number): number {
++	let index = matchStartIndex;
++	do {
++		index += strings.getNextCodePoint(text, textLength, index) > 0xFFFF ? 2 : 1;
++	} while (index < textLength && !leftIsWordBounday(wordSeparators, text, textLength, index, 1));
++	return index;
++}
++
+ export class Searcher {
+ 	public readonly _wordSeparators: WordCharacterClassifier | null;
+ 	private readonly _searchRegex: RegExp;
++	private readonly _isLiteralSearch: boolean;
+ 	private _prevMatchStartIndex: number;
+ 	private _prevMatchLength: number;
+ 
+-	constructor(wordSeparators: WordCharacterClassifier | null, searchRegex: RegExp,) {
++	constructor(wordSeparators: WordCharacterClassifier | null, searchRegex: RegExp, isLiteralSearch: boolean = false) {
+ 		this._wordSeparators = wordSeparators;
+ 		this._searchRegex = searchRegex;
++		this._isLiteralSearch = isLiteralSearch;
+ 		this._prevMatchStartIndex = -1;
+ 		this._prevMatchLength = 0;
+ 	}
+@@ -513,13 +531,20 @@ export class Searcher {
+ 	public next(text: string): RegExpExecArray | null {
+ 		const textLength = text.length;
+ 
++		if (this._prevMatchStartIndex + this._prevMatchLength === textLength) {
++			// The previous accepted match reached the end of the text.
++			return null;
++		}
++
+ 		let m: RegExpExecArray | null;
+ 		do {
+-			if (this._prevMatchStartIndex + this._prevMatchLength === textLength) {
+-				// Reached the end of the line
++			if (this._prevMatchStartIndex !== -1 && !this._searchRegex.global && !this._searchRegex.sticky) {
++				// Non-global, non-sticky regexes ignore lastIndex, including for empty matches.
++				return null;
++			}
++			if (!this._isLiteralSearch && this._prevMatchStartIndex + this._prevMatchLength === textLength) {
+ 				return null;
+ 			}
+-
+ 			m = this._searchRegex.exec(text);
+ 			if (!m) {
+ 				return null;
+@@ -548,6 +573,13 @@ export class Searcher {
+ 				return m;
+ 			}
+ 
++			if (this._isLiteralSearch) {
++				// Literal candidates have a fixed length, so retrying can recover valid overlaps.
++				// Keep user regexes advancing past rejected matches: rewinding arbitrary patterns
++				// can repeatedly scan long suffixes, causing quadratic work.
++				this._searchRegex.lastIndex = findNextWordStart(this._wordSeparators, text, textLength, matchStartIndex);
++			}
++
+ 		} while (m);
+ 
+ 		return null;
+diff --git a/src/vs/editor/test/common/model/textModelSearch.test.ts b/src/vs/editor/test/common/model/textModelSearch.test.ts
+index d2067f30..b7c7dc86 100644
+--- a/src/vs/editor/test/common/model/textModelSearch.test.ts
++++ b/src/vs/editor/test/common/model/textModelSearch.test.ts
+@@ -11,7 +11,8 @@ import { getMapForWordSeparators } from '../../../common/core/wordCharacterClass
+ import { USUAL_WORD_SEPARATORS } from '../../../common/core/wordHelper.js';
+ import { EndOfLineSequence, FindMatch, SearchData } from '../../../common/model.js';
+ import { TextModel } from '../../../common/model/textModel.js';
+-import { SearchParams, TextModelSearch, isMultilineRegexSource } from '../../../common/model/textModelSearch.js';
++import { SearchParams, Searcher, TextModelSearch, isMultilineRegexSource } from '../../../common/model/textModelSearch.js';
++import { PieceTreeTextBufferBuilder } from '../../../common/model/pieceTreeTextBuffer/pieceTreeTextBufferBuilder.js';
+ import { createTextModel } from '../testTextModel.js';
+ 
+ // --------- Find
+@@ -112,6 +113,105 @@ suite('TextModelSearch', () => {
+ 		);
+ 	});
+ 
++	for (const isRegex of [false, true]) {
++		for (const matchCase of [false, true]) {
++			test(`issue #291591: literal overlaps and unchanged regex behavior (regex: ${isRegex}, matchCase: ${matchCase})`, () => {
++				const text = '[1] aa-aa\n[2] xaa-aa-aa\n[3] aax-aa-aa\n[4] aa-aa-aa';
++				const ranges: [number, number, number, number][] = [
++					[1, 5, 1, 10],
++					[3, 9, 3, 14],
++					[4, 5, 4, 10]
++				];
++				if (!isRegex) {
++					ranges.splice(1, 0, [2, 9, 2, 14]);
++				}
++				assertFindMatches(text, 'aa-aa', isRegex, matchCase, USUAL_WORD_SEPARATORS, ranges);
++
++				// The model's public search API also uses the piece tree's literal-search fast path.
++				const builder = new PieceTreeTextBufferBuilder();
++				for (const line of text.split('\n')) {
++					builder.acceptChunk(line + '\n');
++				}
++				const model = createTextModel(builder.finish(true));
++				try {
++					for (const captureMatches of [false, true]) {
++						const expected = ranges.map(range => new FindMatch(new Range(...range), captureMatches ? ['aa-aa'] : null));
++						assert.deepStrictEqual(model.findMatches('aa-aa', false, isRegex, matchCase, USUAL_WORD_SEPARATORS, captureMatches), expected);
++					}
++				} finally {
++					model.dispose();
++				}
++			});
++		}
++	}
++
++	test('Whole-word literal search finds overlaps at the end of the text', () => {
++		assertFindMatches('xaa-aa-aa', 'aa-aa', false, false, USUAL_WORD_SEPARATORS, [[1, 5, 1, 10]]);
++	});
++
++	test('Whole-word search advances over surrogate pairs after rejected candidates', () => {
++		assertFindMatches('x\uD83D\uDCBB-\uD83D\uDCBB-\uD83D\uDCBB', '\uD83D\uDCBB-\uD83D\uDCBB', false, false, USUAL_WORD_SEPARATORS, [[1, 5, 1, 10]]);
++	});
++
++	test('Whole-word search advances past rejected empty matches', () => {
++		assertFindMatches('ab  cd', '(?:)', true, false, USUAL_WORD_SEPARATORS, [[1, 4, 1, 4]]);
++	});
++
++	test('Whole-word search skips long runs without word boundaries', () => {
++		const text = 'x' + 'a'.repeat(100000);
++		const searcher = new Searcher(usualWordSeparators, /a+/gu);
++		assert.strictEqual(searcher.next(text), null);
++	});
++
++	test('Whole-word search terminates when a regex ignores lastIndex', () => {
++		assert.strictEqual(new Searcher(usualWordSeparators, /abc/).next('xabc'), null);
++	});
++
++	test('Rejected non-global empty matches terminate', () => {
++		class LimitedRegExp extends RegExp {
++			private executions = 0;
++			override exec(text: string): RegExpExecArray | null {
++				assert.ok(++this.executions <= 2, 'Search must terminate instead of repeating an empty match');
++				return super.exec(text);
++			}
++		}
++		for (const source of ['$', '^', '(?:)', '(?=x)', '(?<=x)']) {
++			assert.strictEqual(new Searcher(usualWordSeparators, new LimitedRegExp(source)).next('x'), null);
++		}
++	});
++
++	test('Whole-word regex boundary failures do not rescan every suffix', () => {
++		class CountingRegExp extends RegExp {
++			public executions = 0;
++			override exec(text: string): RegExpExecArray | null {
++				this.executions++;
++				return super.exec(text);
++			}
++		}
++		const regex = new CountingRegExp('a.*b', 'gu');
++		assert.strictEqual(new Searcher(usualWordSeparators, regex).next('a '.repeat(8000) + 'bx'), null);
++		assert.ok(regex.executions <= 2, `Expected at most two scans, got ${regex.executions}`);
++	});
++
++	test('Accepted non-global empty matches terminate on the next call', () => {
++		const searcher = new Searcher(usualWordSeparators, /(?= )/);
++		assert.strictEqual(searcher.next(' ')?.index, 0);
++		assert.strictEqual(searcher.next(' '), null);
++	});
++
++	test('Global and sticky empty matches still advance', () => {
++		for (const regex of [/(?:)/g, /(?:)/y]) {
++			const searcher = new Searcher(usualWordSeparators, regex);
++			const indices: number[] = [];
++			let match: RegExpExecArray | null;
++			while ((match = searcher.next('  '))) {
++				indices.push(match.index);
++				assert.ok(indices.length <= 3);
++			}
++			assert.deepStrictEqual(indices, [0, 1, 2]);
++		}
++	});
++
+ 	test('/^/ find', () => {
+ 		assertFindMatches(
+ 			regularText.join('\n'),
+@@ -601,6 +701,7 @@ suite('TextModelSearch', () => {
+ 		} else {
+ 			assert.deepStrictEqual(actual!.regex, expected.regex);
+ 			assert.deepStrictEqual(actual!.simpleSearch, expected.simpleSearch);
++			assert.strictEqual(actual!.isLiteralSearch, !isRegex);
+ 			if (wordSeparators) {
+ 				assert.ok(actual!.wordSeparators !== null);
+ 			} else {

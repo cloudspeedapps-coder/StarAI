@@ -1,0 +1,3 @@
+# Preserve evidence bytes so recorded SHA-256 values survive checkout.
+pr-factory/public/evidence/** -text
+*.png binary

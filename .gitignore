@@ -1,0 +1,20 @@
+# Workstation-only source checkouts, research and generated jobs
+/vscode/
+/research/
+/tmp/
+/qa/*
+!/qa/pr-factory-implementation/
+/qa/pr-factory-implementation/*
+!/qa/pr-factory-implementation/codex-repair-dashboard.png
+**/node_modules/
+**/dist/
+**/.local/
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+*.log
+# Recorded evidence logs are intentional immutable fixtures.
+!pr-factory/public/evidence/*.log

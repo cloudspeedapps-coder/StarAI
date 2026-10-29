@@ -1,0 +1,62 @@
+{
+  "run_id": "vscode-2026-10-28-batch2",
+  "test_date": "2026-10-28",
+  "application": "Visual Studio Code",
+  "version": "1.144.0",
+  "commit": "2c33b50b16c472efe58357d1d2a8a5414bc23fbf",
+  "mode": "Existing user profile; Restricted Mode; local Plain Text UTF-8 LF",
+  "limitations": [
+    "No clean-profile comparison",
+    "No extension bisect",
+    "No app restart comparison",
+    "No root cause analysis"
+  ],
+  "cases": [
+    {
+      "issue": 196884,
+      "outcome": "reproduced",
+      "expected": "Single Replace changes selected b to BBB",
+      "actual": "Two successive clicks advanced from 1 of 3 to 2 of 3 and 3 of 3 without changing text. Replace All changed all 3.",
+      "attempts": "Two successive matches in one document; one Replace All control",
+      "evidence": [
+        "196884-before.png",
+        "196884-single-replace.png",
+        "196884-single-replace-repeat.png",
+        "196884-replace-all-control.png"
+      ]
+    },
+    {
+      "issue": 291591,
+      "outcome": "reproduced",
+      "expected": "Three whole-word aa-aa matches including trailing occurrence on line 2",
+      "actual": "Whole-word on shows 2 matches, lines 1 and 3. Off shows 3. On again shows 2.",
+      "attempts": "Two whole-word-on observations with off-mode control; regex disabled for final evidence",
+      "adaptations": [
+        "Local file rather than original remote SSH environment"
+      ],
+      "evidence": [
+        "291591-whole-word-off.png",
+        "291591-whole-word-on.png",
+        "291591-whole-word-repeat.png"
+      ]
+    },
+    {
+      "issue": 309282,
+      "outcome": "reproduced",
+      "expected": "Three carets survive Copy Line Down",
+      "actual": "3 selections became 2; x marker produced foox barx baz; reset and repeated with same cursor loss",
+      "attempts": "Two Copy Line Down trials separated by undo reset; one marker probe",
+      "adaptations": [
+        "Cursors created with regex Find foo|bar|baz, Alt+Enter, Escape, Right instead of Alt+Click"
+      ],
+      "evidence": [
+        "309282-three-cursors-before.png",
+        "309282-copy-down-two-cursors.png",
+        "309282-cursor-probe.png",
+        "309282-copy-down-repeat.png"
+      ]
+    }
+  ],
+  "cleanup": "Original fixtures restored and disk verified; test tabs closed; regex/whole-word modes off; search history may retain terms",
+  "externally_posted": false
+}
